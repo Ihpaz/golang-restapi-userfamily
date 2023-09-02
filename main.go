@@ -5,8 +5,11 @@ import (
 	"github.com/Ihpaz/golang-restapi-userfamily/repository"
 )
 
+var (
+	DB                                               = config.Init()
+	customerRepository repository.CustomerRepository = repository.NewCustomerRepository(DB)
+)
 
 func main() {
-	 DB = config.Init()
-	 customerRepository repository.CustomerRepository=repository.NewCustomerRepository(DB);
+
 }

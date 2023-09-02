@@ -1,78 +1,84 @@
 package repository
 
 import (
-	"context"
-	"database/sql"
-	"log"
+	"time"
 
 	"github.com/Ihpaz/golang-restapi-userfamily/entity"
+	"gorm.io/gorm"
 )
 
 type CustomerRepository interface {
-	Save(post *entity.Customer) (*entity.Customer, error)
-	FindAll() ([]entity.Customer, error)
+	Save(customer *entity.Customer) (*entity.Customer, error)
+	FindAll() (*[]entity.Customer, error)
 }
 
 type repo struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
-func NewCustomerRepository(db *sql.DB) CustomerRepository {
+func NewCustomerRepository(db *gorm.DB) CustomerRepository {
 	return &repo{db}
 }
 
-const (
-	projectId      string = "pragmatic-reviews"
-	collectionName string = "posts"
-)
-
-func (*repo) Save(post *entity.Customer) (*entity.Customer, error) {
-	ctx := context.Background()
-	client, err := firestore.NewClient(ctx, projectId)
+func (r *repo) Save(customer *entity.Customer) (*entity.Customer, error) {
+	var err error
+	err = r.db.Create(&customer).Error
 	if err != nil {
-		log.Fatalf("Failed to create a Firestore Client: %v", err)
-		return nil, err
+		return &entity.Customer{}, err
 	}
-
-	defer client.Close()
-	_, _, err = client.Collection(collectionName).Add(ctx, map[string]interface{}{
-		"ID":    post.ID,
-		"Title": post.Title,
-		"Text":  post.Text,
-	})
-	if err != nil {
-		log.Fatalf("Failed adding a new post: %v", err)
-		return nil, err
-	}
-	return post, nil
+	return customer, nil
 }
 
-func (*repo) FindAll() ([]entity.Post, error) {
-	ctx := context.Background()
-	client, err := firestore.NewClient(ctx, projectId)
+func (r *repo) FindAll() (*[]entity.Customer, error) {
+	var err error
+	customers := []entity.Customer{}
+	err = r.db.Model(&entity.Customer{}).Limit(100).Find(customers).Error
 	if err != nil {
-		log.Fatalf("Failed to create a Firestore Client: %v", err)
-		return nil, err
+		return &[]entity.Customer{}, err
+	}
+	return &customers, nil
+}
+
+func (r *repo) FindUserByID(customer *entity.Customer, uid uint32) (*entity.Customer, error) {
+	var err error
+	err = r.db.Model(entity.Customer{}).Where("id = ?", uid).Take(&customer).Error
+	if err != nil {
+		return &entity.Customer{}, err
 	}
 
-	defer client.Close()
-	var posts []entity.Post
-	it := client.Collection(collectionName).Documents(ctx)
-	for {
-		doc, err := it.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			log.Fatalf("Failed to iterate the list of posts: %v", err)
-			return nil, err
-		}
-		post := entity.Post{
-			ID:    doc.Data()["ID"].(int64),
-			Title: doc.Data()["Title"].(string),
-			Text:  doc.Data()["Text"].(string),
-		}
-		posts = append(posts, post)
+	return customer, err
+}
+
+func (r *repo) UpdateAUser(customer *entity.Customer, uid uint32) (*entity.Customer, error) {
+	var err error
+	var query = r.db.Model(&entity.Customer{}).Where("id = ?", uid).Take(&customer).UpdateColumns(
+		map[string]interface{}{
+			"Nationality_id": customer.Nationality_id,
+			"Cst_name":       customer.Cst_name,
+			"Cst_email":      customer.Cst_email,
+			"Cst_dob_date":   customer.Cst_dob_date,
+			"Cst_phoneNum":   customer.Cst_phoneNum,
+			"updated_at":     time.Now(),
+		},
+	)
+
+	if query.Error != nil {
+		return &entity.Customer{}, query.Error
 	}
-	return posts, nil
+
+	err = r.db.Model(&entity.Customer{}).Where("id = ?", uid).Take(&customer).Error
+	if err != nil {
+		return &entity.Customer{}, err
+	}
+	return customer, nil
+}
+
+func (r *repo) DeleteAUser(customer *entity.Customer, uid uint32) (int64, error) {
+
+	var query = r.db.Model(&entity.Customer{}).Where("id = ?", uid).Take(&customer).Delete(&entity.Customer{})
+
+	if query.Error != nil {
+		return 0, query.Error
+	}
+	return query.RowsAffected, nil
 }
