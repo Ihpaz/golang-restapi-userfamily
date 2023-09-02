@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/Ihpaz/golang-restapi-userfamily/entity"
@@ -10,6 +11,9 @@ import (
 type CustomerRepository interface {
 	Save(customer *entity.Customer) (*entity.Customer, error)
 	FindAll() (*[]entity.Customer, error)
+	FindCustomerByCstId(customer *entity.Customer, uid uint64) (*entity.Customer, error)
+	UpdateACustomer(customer *entity.Customer, uid uint64) (*entity.Customer, error)
+	DeleteACustomer(customer *entity.Customer, uid uint64) (int64, error)
 }
 
 type repo struct {
@@ -31,15 +35,19 @@ func (r *repo) Save(customer *entity.Customer) (*entity.Customer, error) {
 
 func (r *repo) FindAll() (*[]entity.Customer, error) {
 	var err error
+
+	fmt.Printf("Masuk kok")
 	customers := []entity.Customer{}
-	err = r.db.Model(&entity.Customer{}).Limit(100).Find(customers).Error
+	err = r.db.Find(&customers).Limit(100).Error
+
+	fmt.Printf("Masuk kok 2")
 	if err != nil {
 		return &[]entity.Customer{}, err
 	}
 	return &customers, nil
 }
 
-func (r *repo) FindUserByID(customer *entity.Customer, uid uint32) (*entity.Customer, error) {
+func (r *repo) FindCustomerByCstId(customer *entity.Customer, uid uint64) (*entity.Customer, error) {
 	var err error
 	err = r.db.Model(entity.Customer{}).Where("id = ?", uid).Take(&customer).Error
 	if err != nil {
@@ -49,7 +57,7 @@ func (r *repo) FindUserByID(customer *entity.Customer, uid uint32) (*entity.Cust
 	return customer, err
 }
 
-func (r *repo) UpdateAUser(customer *entity.Customer, uid uint32) (*entity.Customer, error) {
+func (r *repo) UpdateACustomer(customer *entity.Customer, uid uint64) (*entity.Customer, error) {
 	var err error
 	var query = r.db.Model(&entity.Customer{}).Where("id = ?", uid).Take(&customer).UpdateColumns(
 		map[string]interface{}{
@@ -73,7 +81,7 @@ func (r *repo) UpdateAUser(customer *entity.Customer, uid uint32) (*entity.Custo
 	return customer, nil
 }
 
-func (r *repo) DeleteAUser(customer *entity.Customer, uid uint32) (int64, error) {
+func (r *repo) DeleteACustomer(customer *entity.Customer, uid uint64) (int64, error) {
 
 	var query = r.db.Model(&entity.Customer{}).Where("id = ?", uid).Take(&customer).Delete(&entity.Customer{})
 
