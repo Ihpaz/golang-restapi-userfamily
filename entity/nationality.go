@@ -1,7 +1,7 @@
 package entity
 
 type Nationality struct {
-	nationality_id   int64 `gorm:"primaryKey"`
-	nationality_name string
-	nationality_code string
+	Nationality_id   int64 `gorm:"primaryKey"`
+	Nationality_name string
+	Nationality_code string
 }

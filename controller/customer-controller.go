@@ -26,7 +26,7 @@ type CustomerController interface {
 	DeleteCustomer(response http.ResponseWriter, request *http.Request)
 }
 
-func NewPostController(service service.CustomerService) CustomerController {
+func NewCustomerController(service service.CustomerService) CustomerController {
 	customerService = service
 	return &controller{}
 }
@@ -80,7 +80,7 @@ func (*controller) GetCustomer(response http.ResponseWriter, request *http.Reque
 
 	var customer *entity.Customer
 	vars := mux.Vars(request)
-	pid, err := strconv.ParseUint(vars["id"], 10, 32)
+	pid, err := strconv.ParseUint(vars["id"], 10, 64)
 	dtcustomer, err := customerService.FindCustomerByCstId(customer, pid)
 
 	if err != nil {
@@ -112,7 +112,7 @@ func (*controller) UpdateCustomer(response http.ResponseWriter, request *http.Re
 	}
 
 	vars := mux.Vars(request)
-	pid, err := strconv.ParseUint(vars["id"], 10, 32)
+	pid, err := strconv.ParseUint(vars["id"], 10, 64)
 	result, err := customerService.UpdateACustomer(customer, pid)
 
 	if err != nil {
@@ -129,7 +129,9 @@ func (*controller) DeleteCustomer(response http.ResponseWriter, request *http.Re
 
 	var customer *entity.Customer
 	vars := mux.Vars(request)
-	pid, err := strconv.ParseUint(vars["id"], 10, 32)
+	pid, err := strconv.ParseUint(vars["id"], 10, 64)
+
+	fmt.Println("uid ini =", pid)
 	result, err := customerService.DeleteACustomer(customer, pid)
 
 	if err != nil {

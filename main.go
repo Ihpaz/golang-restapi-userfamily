@@ -10,11 +10,17 @@ import (
 )
 
 var (
-	DB                                               = config.Init()
+	DB = config.Init()
+
 	customerRepository repository.CustomerRepository = repository.NewCustomerRepository(DB)
-	customerService    service.CustomerService       = service.NewPostService(customerRepository)
-	customerController controller.CustomerController = controller.NewPostController(customerService)
-	httpRouter         routes.Router                 = routes.NewMuxRouter()
+	customerService    service.CustomerService       = service.NewCustomerService(customerRepository)
+	customerController controller.CustomerController = controller.NewCustomerController(customerService)
+
+	nationalityRepository repository.NationalityRepository = repository.NewNationalityRepository(DB)
+	nationalityService    service.NationalityService       = service.NewNationalityService(nationalityRepository)
+	nationalityController controller.NationalityController = controller.NewNationalityController(nationalityService)
+
+	httpRouter routes.Router = routes.NewMuxRouter()
 )
 
 func main() {
@@ -25,6 +31,10 @@ func main() {
 	httpRouter.PUT("/customer/{id}", middlewares.SetMiddlewareJSON(customerController.UpdateCustomer))
 	httpRouter.GET("/customer/{id}", middlewares.SetMiddlewareJSON(customerController.GetCustomer))
 	httpRouter.DELETE("/customer/{id}", middlewares.SetMiddlewareJSON(customerController.DeleteCustomer))
+
+	httpRouter.GET("/nationality", customerController.GetCustomers)
+	httpRouter.POST("/nationality", middlewares.SetMiddlewareJSON(customerController.AddCustomer))
+
 	httpRouter.SERVE(port)
 
 }

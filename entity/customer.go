@@ -1,6 +1,10 @@
 package entity
 
-import "time"
+import (
+	"database/sql/driver"
+	"fmt"
+	"time"
+)
 
 type CustomTime struct {
 	time.Time
@@ -13,6 +17,23 @@ func (t *CustomTime) UnmarshalJSON(b []byte) (err error) {
 	}
 	t.Time = date
 	return
+}
+
+func (ct CustomTime) Value() (driver.Value, error) {
+	return ct.Time, nil
+}
+
+func (ct *CustomTime) Scan(value interface{}) error {
+	if value == nil {
+		ct.Time = time.Time{}
+		return nil
+	}
+	parsedTime, ok := value.(time.Time)
+	if !ok {
+		return fmt.Errorf("Invalid type for CustomTime")
+	}
+	ct.Time = parsedTime
+	return nil
 }
 
 type Customer struct {
