@@ -49,7 +49,6 @@ func Init() *gorm.DB {
 		os.Getenv("DB_NAME"),
 		os.Getenv("DB_PORT"),
 	)
-	// dsn := "host=localhost user=postgres password=admin dbname=bookingapp port=5432 sslmode=disable TimeZone=Asia/Jakarta"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
@@ -58,7 +57,9 @@ func Init() *gorm.DB {
 
 	db.AutoMigrate(&entity.Nationality{}, &entity.Customer{}, &entity.FamilyList{})
 
-	SeedUsers(db)
+	if os.Getenv("APP_ENV") == "DEV" {
+		SeedUsers(db)
+	}
 
 	return db
 }
