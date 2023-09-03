@@ -1,9 +1,13 @@
 package config
 
 import (
+	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/Ihpaz/golang-restapi-userfamily/entity"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -23,13 +27,29 @@ func SeedUsers(db *gorm.DB) {
 			db.Create(&nationality)
 		}
 	}
+}
 
+func LoadEnv() {
+	rootDir, err := os.Getwd()
+	envFilePath := filepath.Join(rootDir, ".env")
+	err = godotenv.Load(envFilePath)
+
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
 }
 
 func Init() *gorm.DB {
-	// dbURL := "postgres://pg:pass@localhost:5432/bookingapp"
+	LoadEnv()
 
-	dsn := "host=localhost user=postgres password=admin dbname=bookingapp port=5432 sslmode=disable TimeZone=Asia/Jakarta"
+	dsn := fmt.Sprintf("host=%v user=%v password=%v dbname=%v port=%v sslmode=disable TimeZone=Asia/Jakarta",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASS"),
+		os.Getenv("DB_NAME"),
+		os.Getenv("DB_PORT"),
+	)
+	// dsn := "host=localhost user=postgres password=admin dbname=bookingapp port=5432 sslmode=disable TimeZone=Asia/Jakarta"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
