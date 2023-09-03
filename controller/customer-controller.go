@@ -50,7 +50,6 @@ func (*controller) AddCustomer(response http.ResponseWriter, request *http.Reque
 	// fmt.Printf(request)
 
 	err := json.NewDecoder(request.Body).Decode(&customer)
-	fmt.Printf("error euy:", err)
 
 	if err != nil {
 		response.WriteHeader(http.StatusInternalServerError)
@@ -113,6 +112,7 @@ func (*controller) UpdateCustomer(response http.ResponseWriter, request *http.Re
 
 	vars := mux.Vars(request)
 	pid, err := strconv.ParseUint(vars["id"], 10, 64)
+	fmt.Printf(`id`, pid)
 	result, err := customerService.UpdateACustomer(customer, pid)
 
 	if err != nil {

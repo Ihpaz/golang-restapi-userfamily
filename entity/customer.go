@@ -43,4 +43,6 @@ type Customer struct {
 	Cst_dob_date   CustomTime `json:"Cst_dob_date"`
 	Cst_phoneNum   string
 	Cst_email      string
+	Nationality    Nationality
+	FamilyList     []FamilyList `gorm:"foreignKey:Cst_id"`
 }

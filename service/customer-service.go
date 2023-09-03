@@ -58,7 +58,6 @@ func (*servicecustomer) FindCustomerByCstId(customer *entity.Customer, uid uint6
 }
 
 func (*servicecustomer) UpdateACustomer(customer *entity.Customer, uid uint64) (*entity.Customer, error) {
-	customer.Cst_id = rand.Int63()
 	return repo.UpdateACustomer(customer, uid)
 }
 

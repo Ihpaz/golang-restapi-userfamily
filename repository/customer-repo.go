@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"fmt"
-
 	"github.com/Ihpaz/golang-restapi-userfamily/entity"
 	"gorm.io/gorm"
 )
@@ -34,10 +32,8 @@ func (r *repo) Save(customer *entity.Customer) (*entity.Customer, error) {
 
 func (r *repo) FindAll() (*[]entity.Customer, error) {
 	var err error
-
 	customers := []entity.Customer{}
 	err = r.db.Find(&customers).Limit(100).Error
-
 	if err != nil {
 		return &[]entity.Customer{}, err
 	}
@@ -65,11 +61,11 @@ func (r *repo) UpdateACustomer(customer *entity.Customer, uid uint64) (*entity.C
 			"Cst_phoneNum":   customer.Cst_phoneNum,
 		},
 	)
-
+	query = r.db.Where("cst_id = ?", uid).Delete(entity.FamilyList{})
+	query = r.db.Create(&customer.FamilyList)
 	if query.Error != nil {
 		return &entity.Customer{}, query.Error
 	}
-
 	err = r.db.Find(&entity.Customer{}).Where("cst_id = ?", uid).Error
 	if err != nil {
 		return &entity.Customer{}, err
@@ -79,8 +75,8 @@ func (r *repo) UpdateACustomer(customer *entity.Customer, uid uint64) (*entity.C
 
 func (r *repo) DeleteACustomer(customer *entity.Customer, uid uint64) (int64, error) {
 
-	fmt.Println("masuk ko")
-	var query = r.db.Where("cst_id = ?", uid).Delete(entity.Customer{})
+	var query = r.db.Where("cst_id = ?", uid).Delete(entity.FamilyList{})
+	query = r.db.Where("cst_id = ?", uid).Delete(entity.Customer{})
 
 	if query.Error != nil {
 		return 0, query.Error
