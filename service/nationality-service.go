@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"math/rand"
 
 	"github.com/Ihpaz/golang-restapi-userfamily/entity"
 	"github.com/Ihpaz/golang-restapi-userfamily/repository"
@@ -42,7 +41,6 @@ func (*servicenationality) Validate(nationality *entity.Nationality) error {
 }
 
 func (*servicenationality) Create(nationality *entity.Nationality) (*entity.Nationality, error) {
-	nationality.Nationality_id = rand.Int63()
 	return reponationality.Save(nationality)
 }
 

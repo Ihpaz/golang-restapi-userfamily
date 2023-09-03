@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"math/rand"
 
 	"github.com/Ihpaz/golang-restapi-userfamily/entity"
 	"github.com/Ihpaz/golang-restapi-userfamily/repository"
@@ -33,6 +32,10 @@ func (*servicecustomer) Validate(customer *entity.Customer) error {
 		err := errors.New("The customer is empty")
 		return err
 	}
+	if customer.Nationality_id == 0 {
+		err := errors.New("The Nationality_id is empty")
+		return err
+	}
 	if customer.Cst_name == "" {
 		err := errors.New("The customer name is empty")
 		return err
@@ -45,7 +48,6 @@ func (*servicecustomer) Validate(customer *entity.Customer) error {
 }
 
 func (*servicecustomer) Create(customer *entity.Customer) (*entity.Customer, error) {
-	customer.Cst_id = rand.Int63()
 	return repo.Save(customer)
 }
 

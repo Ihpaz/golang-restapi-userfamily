@@ -37,7 +37,7 @@ func (ct *CustomTime) Scan(value interface{}) error {
 }
 
 type Customer struct {
-	Cst_id         int64 `gorm:"primaryKey"`
+	ID             uint
 	Nationality_id int64
 	Cst_name       string
 	Cst_dob_date   CustomTime `json:"Cst_dob_date"`

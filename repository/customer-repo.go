@@ -33,7 +33,7 @@ func (r *repo) Save(customer *entity.Customer) (*entity.Customer, error) {
 func (r *repo) FindAll() (*[]entity.Customer, error) {
 	var err error
 	customers := []entity.Customer{}
-	err = r.db.Find(&customers).Limit(100).Error
+	err = r.db.Preload("Nationality").Find(&customers).Limit(100).Error
 	if err != nil {
 		return &[]entity.Customer{}, err
 	}
@@ -42,7 +42,7 @@ func (r *repo) FindAll() (*[]entity.Customer, error) {
 
 func (r *repo) FindCustomerByCstId(customer *entity.Customer, uid uint64) (*entity.Customer, error) {
 	var err error
-	err = r.db.Find(&customer).Where("cst_id = ?", uid).Error
+	err = r.db.Preload("FamilyList").Find(&customer, uid).Error
 	if err != nil {
 		return &entity.Customer{}, err
 	}
@@ -52,7 +52,7 @@ func (r *repo) FindCustomerByCstId(customer *entity.Customer, uid uint64) (*enti
 
 func (r *repo) UpdateACustomer(customer *entity.Customer, uid uint64) (*entity.Customer, error) {
 	var err error
-	var query = r.db.Model(&entity.Customer{}).Where("cst_id = ?", uid).UpdateColumns(
+	var query = r.db.Model(&entity.Customer{ID: uint(uid)}).UpdateColumns(
 		map[string]interface{}{
 			"Nationality_id": customer.Nationality_id,
 			"Cst_name":       customer.Cst_name,
@@ -62,11 +62,17 @@ func (r *repo) UpdateACustomer(customer *entity.Customer, uid uint64) (*entity.C
 		},
 	)
 	query = r.db.Where("cst_id = ?", uid).Delete(entity.FamilyList{})
-	query = r.db.Create(&customer.FamilyList)
+
+	for i := range customer.FamilyList {
+		customer.FamilyList[i].Cst_id = int64(uid)
+	}
+
+	query = r.db.Create(customer.FamilyList)
+
 	if query.Error != nil {
 		return &entity.Customer{}, query.Error
 	}
-	err = r.db.Find(&entity.Customer{}).Where("cst_id = ?", uid).Error
+	err = r.db.Find(&entity.Customer{}, uid).Error
 	if err != nil {
 		return &entity.Customer{}, err
 	}
@@ -76,7 +82,7 @@ func (r *repo) UpdateACustomer(customer *entity.Customer, uid uint64) (*entity.C
 func (r *repo) DeleteACustomer(customer *entity.Customer, uid uint64) (int64, error) {
 
 	var query = r.db.Where("cst_id = ?", uid).Delete(entity.FamilyList{})
-	query = r.db.Where("cst_id = ?", uid).Delete(entity.Customer{})
+	query = r.db.Delete(&customer, uid)
 
 	if query.Error != nil {
 		return 0, query.Error

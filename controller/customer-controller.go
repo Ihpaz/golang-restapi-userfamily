@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -36,30 +35,26 @@ func (*controller) GetCustomers(response http.ResponseWriter, request *http.Requ
 	posts, err := customerService.FindAll()
 	if err != nil {
 		response.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(response).Encode(errors.ServiceError{Message: "Error getting the posts"})
+		json.NewEncoder(response).Encode(errors.ServiceError{Message: "Error getting the customer"})
 	}
 	response.WriteHeader(http.StatusOK)
 	json.NewEncoder(response).Encode(posts)
 }
 
 func (*controller) AddCustomer(response http.ResponseWriter, request *http.Request) {
-	response.Header().Set("Content-Type", "application/json")
+	// response.Header().Set("Content-Type", "application/json")
 
 	var customer entity.Customer
-
-	// fmt.Printf(request)
-
 	err := json.NewDecoder(request.Body).Decode(&customer)
-
 	if err != nil {
-		response.WriteHeader(http.StatusInternalServerError)
+		response.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(response).Encode(errors.ServiceError{Message: "Error unmarshalling data"})
 		return
 	}
 
 	err1 := customerService.Validate(&customer)
 	if err1 != nil {
-		response.WriteHeader(http.StatusInternalServerError)
+		response.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(response).Encode(errors.ServiceError{Message: err1.Error()})
 		return
 	}
@@ -95,24 +90,23 @@ func (*controller) UpdateCustomer(response http.ResponseWriter, request *http.Re
 	// response.Header().Set("Content-Type", "application/json")
 
 	var customer *entity.Customer
-	err := json.NewDecoder(request.Body).Decode(&customer)
 
+	err := json.NewDecoder(request.Body).Decode(&customer)
 	if err != nil {
-		response.WriteHeader(http.StatusInternalServerError)
+		response.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(response).Encode(errors.ServiceError{Message: "Error unmarshalling data"})
 		return
 	}
 
 	err1 := customerService.Validate(customer)
 	if err1 != nil {
-		response.WriteHeader(http.StatusInternalServerError)
+		response.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(response).Encode(errors.ServiceError{Message: err1.Error()})
 		return
 	}
 
 	vars := mux.Vars(request)
 	pid, err := strconv.ParseUint(vars["id"], 10, 64)
-	fmt.Printf(`id`, pid)
 	result, err := customerService.UpdateACustomer(customer, pid)
 
 	if err != nil {
@@ -130,8 +124,6 @@ func (*controller) DeleteCustomer(response http.ResponseWriter, request *http.Re
 	var customer *entity.Customer
 	vars := mux.Vars(request)
 	pid, err := strconv.ParseUint(vars["id"], 10, 64)
-
-	fmt.Println("uid ini =", pid)
 	result, err := customerService.DeleteACustomer(customer, pid)
 
 	if err != nil {

@@ -32,8 +32,8 @@ func main() {
 	httpRouter.GET("/customer/{id}", middlewares.SetMiddlewareJSON(customerController.GetCustomer))
 	httpRouter.DELETE("/customer/{id}", middlewares.SetMiddlewareJSON(customerController.DeleteCustomer))
 
-	httpRouter.GET("/nationality", customerController.GetCustomers)
-	httpRouter.POST("/nationality", middlewares.SetMiddlewareJSON(customerController.AddCustomer))
+	httpRouter.GET("/nationality", middlewares.SetMiddlewareJSON(nationalityController.GetNationalities))
+	httpRouter.POST("/nationality", middlewares.SetMiddlewareJSON(nationalityController.AddNationality))
 
 	httpRouter.SERVE(port)
 

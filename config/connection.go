@@ -11,14 +11,19 @@ import (
 func SeedUsers(db *gorm.DB) {
 
 	nationalities := []entity.Nationality{
-		{Nationality_id: 1, Nationality_name: "Indonesia", Nationality_code: "ID"},
-		{Nationality_id: 2, Nationality_name: "Malaysia", Nationality_code: "MY"},
-		{Nationality_id: 3, Nationality_name: "Singapore", Nationality_code: "SG"},
+		{Nationality_name: "Indonesia", Nationality_code: "ID"},
+		{Nationality_name: "Malaysia", Nationality_code: "MY"},
+		{Nationality_name: "Singapore", Nationality_code: "SG"},
 	}
 
-	for _, nationality := range nationalities {
-		db.Create(&nationality)
+	var result = db.Find(&entity.Nationality{})
+
+	if result.RowsAffected == 0 {
+		for _, nationality := range nationalities {
+			db.Create(&nationality)
+		}
 	}
+
 }
 
 func Init() *gorm.DB {
@@ -31,7 +36,7 @@ func Init() *gorm.DB {
 		log.Fatalln(err)
 	}
 
-	db.AutoMigrate(&entity.Customer{}, &entity.Nationality{}, &entity.FamilyList{})
+	db.AutoMigrate(&entity.Nationality{}, &entity.Customer{}, &entity.FamilyList{})
 
 	SeedUsers(db)
 
