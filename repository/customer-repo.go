@@ -7,7 +7,7 @@ import (
 
 type CustomerRepository interface {
 	Save(customer *entity.Customer) (*entity.Customer, error)
-	FindAll() (*[]entity.Customer, error)
+	FindAll() ([]entity.Customer, error)
 	FindCustomerByCstId(customer *entity.Customer, uid uint64) (*entity.Customer, error)
 	UpdateACustomer(customer *entity.Customer, uid uint64) (*entity.Customer, error)
 	DeleteACustomer(customer *entity.Customer, uid uint64) (int64, error)
@@ -30,14 +30,14 @@ func (r *repo) Save(customer *entity.Customer) (*entity.Customer, error) {
 	return customer, nil
 }
 
-func (r *repo) FindAll() (*[]entity.Customer, error) {
+func (r *repo) FindAll() ([]entity.Customer, error) {
 	var err error
 	customers := []entity.Customer{}
 	err = r.db.Preload("Nationality").Find(&customers).Limit(100).Error
 	if err != nil {
-		return &[]entity.Customer{}, err
+		return []entity.Customer{}, err
 	}
-	return &customers, nil
+	return customers, nil
 }
 
 func (r *repo) FindCustomerByCstId(customer *entity.Customer, uid uint64) (*entity.Customer, error) {

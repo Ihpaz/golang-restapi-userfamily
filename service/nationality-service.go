@@ -30,11 +30,11 @@ func (*servicenationality) Validate(nationality *entity.Nationality) error {
 		return err
 	}
 	if nationality.Nationality_name == "" {
-		err := errors.New("The customer name is empty")
+		err := errors.New("The nationality name is empty")
 		return err
 	}
 	if nationality.Nationality_code == "" {
-		err := errors.New("The customer date of birth is empty")
+		err := errors.New("The nationality empty")
 		return err
 	}
 	return nil

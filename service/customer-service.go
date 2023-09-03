@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/Ihpaz/golang-restapi-userfamily/entity"
 	"github.com/Ihpaz/golang-restapi-userfamily/repository"
@@ -10,7 +11,7 @@ import (
 type CustomerService interface {
 	Validate(customer *entity.Customer) error
 	Create(customer *entity.Customer) (*entity.Customer, error)
-	FindAll() (*[]entity.Customer, error)
+	FindAll() ([]entity.Customer, error)
 	FindCustomerByCstId(customer *entity.Customer, uid uint64) (*entity.Customer, error)
 	UpdateACustomer(customer *entity.Customer, uid uint64) (*entity.Customer, error)
 	DeleteACustomer(customer *entity.Customer, uid uint64) (int64, error)
@@ -44,6 +45,14 @@ func (*servicecustomer) Validate(customer *entity.Customer) error {
 		err := errors.New("The customer date of birth is empty")
 		return err
 	}
+
+	for i := range customer.FamilyList {
+		if customer.FamilyList[i].Fl_dob_date.IsZero() {
+			errorMessage := fmt.Sprintf("The family date of birth is empty in row %d", i+1)
+			err := errors.New(errorMessage)
+			return err
+		}
+	}
 	return nil
 }
 
@@ -51,7 +60,7 @@ func (*servicecustomer) Create(customer *entity.Customer) (*entity.Customer, err
 	return repo.Save(customer)
 }
 
-func (*servicecustomer) FindAll() (*[]entity.Customer, error) {
+func (*servicecustomer) FindAll() ([]entity.Customer, error) {
 	return repo.FindAll()
 }
 

@@ -46,6 +46,7 @@ func (*controller) AddCustomer(response http.ResponseWriter, request *http.Reque
 
 	var customer entity.Customer
 	err := json.NewDecoder(request.Body).Decode(&customer)
+
 	if err != nil {
 		response.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(response).Encode(errors.ServiceError{Message: "Error unmarshalling data"})
@@ -92,6 +93,7 @@ func (*controller) UpdateCustomer(response http.ResponseWriter, request *http.Re
 	var customer *entity.Customer
 
 	err := json.NewDecoder(request.Body).Decode(&customer)
+
 	if err != nil {
 		response.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(response).Encode(errors.ServiceError{Message: "Error unmarshalling data"})
