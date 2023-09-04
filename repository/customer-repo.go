@@ -52,7 +52,9 @@ func (r *repo) FindCustomerByCstId(customer *entity.Customer, uid uint64) (*enti
 
 func (r *repo) UpdateACustomer(customer *entity.Customer, uid uint64) (*entity.Customer, error) {
 	var err error
-	var query = r.db.Model(&entity.Customer{ID: uint(uid)}).UpdateColumns(
+	tx := r.db.Begin()
+
+	var query = tx.Model(&entity.Customer{ID: uint(uid)}).UpdateColumns(
 		map[string]interface{}{
 			"Nationality_id": customer.Nationality_id,
 			"Cst_name":       customer.Cst_name,
@@ -61,17 +63,25 @@ func (r *repo) UpdateACustomer(customer *entity.Customer, uid uint64) (*entity.C
 			"Cst_phoneNum":   customer.Cst_phoneNum,
 		},
 	)
-	query = r.db.Where("cst_id = ?", uid).Delete(entity.FamilyList{})
+
+	var query2 = tx.Where("cst_id = ?", uid).Delete(entity.FamilyList{})
+	if query2.Error != nil {
+		tx.Rollback()
+		return &entity.Customer{}, query.Error
+	}
 
 	for i := range customer.FamilyList {
 		customer.FamilyList[i].Cst_id = int64(uid)
 	}
 
-	query = r.db.Create(customer.FamilyList)
-
-	if query.Error != nil {
+	var query3 = tx.Create(customer.FamilyList)
+	if query3.Error != nil {
+		tx.Rollback()
 		return &entity.Customer{}, query.Error
 	}
+
+	tx.Commit()
+
 	err = r.db.Find(&entity.Customer{}, uid).Error
 	if err != nil {
 		return &entity.Customer{}, err
@@ -81,11 +91,19 @@ func (r *repo) UpdateACustomer(customer *entity.Customer, uid uint64) (*entity.C
 
 func (r *repo) DeleteACustomer(customer *entity.Customer, uid uint64) (int64, error) {
 
-	var query = r.db.Where("cst_id = ?", uid).Delete(entity.FamilyList{})
-	query = r.db.Delete(&customer, uid)
+	tx := r.db.Begin()
 
-	if query.Error != nil {
-		return 0, query.Error
+	var query1 = tx.Where("cst_id = ?", uid).Delete(entity.FamilyList{})
+	if query1.Error != nil || query1.RowsAffected == 0 {
+		return 0, query1.Error
 	}
-	return query.RowsAffected, nil
+
+	var query2 = tx.Delete(&customer, uid)
+	if query2.Error != nil || query2.RowsAffected == 0 {
+		tx.Rollback()
+		return 0, query2.Error
+	}
+
+	tx.Commit()
+	return query2.RowsAffected, nil
 }
