@@ -1,5 +1,5 @@
 # golang-restapi-userfamily
-Golang restapi with gorm
+Belajar Golang restapi with gorm
 database postgresql
 
 rename .env-example
