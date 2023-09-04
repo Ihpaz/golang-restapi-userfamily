@@ -26,7 +26,6 @@ func NewNationalityController(service service.NationalityService) NationalityCon
 }
 
 func (*controller) GetNationalities(response http.ResponseWriter, request *http.Request) {
-	// response.Header().Set("Content-Type", "application/json")
 	nationalities, err := nationalityService.FindAll()
 	if err != nil {
 		response.WriteHeader(http.StatusInternalServerError)
@@ -37,8 +36,6 @@ func (*controller) GetNationalities(response http.ResponseWriter, request *http.
 }
 
 func (*controller) AddNationality(response http.ResponseWriter, request *http.Request) {
-	// response.Header().Set("Content-Type", "application/json")
-
 	var nationality entity.Nationality
 	err := json.NewDecoder(request.Body).Decode(&nationality)
 	if err != nil {
