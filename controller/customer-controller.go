@@ -32,13 +32,13 @@ func NewCustomerController(service service.CustomerService) CustomerController {
 
 func (*controller) GetCustomers(response http.ResponseWriter, request *http.Request) {
 	// response.Header().Set("Content-Type", "application/json")
-	posts, err := customerService.FindAll()
+	customers, err := customerService.FindAll()
 	if err != nil {
 		response.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(response).Encode(errors.ServiceError{Message: "Error getting the customer"})
 	}
 	response.WriteHeader(http.StatusOK)
-	json.NewEncoder(response).Encode(posts)
+	json.NewEncoder(response).Encode(customers)
 }
 
 func (*controller) AddCustomer(response http.ResponseWriter, request *http.Request) {

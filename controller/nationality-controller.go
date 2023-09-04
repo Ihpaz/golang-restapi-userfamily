@@ -27,13 +27,13 @@ func NewNationalityController(service service.NationalityService) NationalityCon
 
 func (*controller) GetNationalities(response http.ResponseWriter, request *http.Request) {
 	// response.Header().Set("Content-Type", "application/json")
-	posts, err := nationalityService.FindAll()
+	nationalities, err := nationalityService.FindAll()
 	if err != nil {
 		response.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(response).Encode(errors.ServiceError{Message: "Error getting the nationalities"})
 	}
 	response.WriteHeader(http.StatusOK)
-	json.NewEncoder(response).Encode(posts)
+	json.NewEncoder(response).Encode(nationalities)
 }
 
 func (*controller) AddNationality(response http.ResponseWriter, request *http.Request) {

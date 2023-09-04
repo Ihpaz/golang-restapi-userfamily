@@ -26,7 +26,7 @@ var (
 func main() {
 
 	const port string = ":8080"
-	httpRouter.GET("/customer", customerController.GetCustomers)
+	httpRouter.GET("/customer", middlewares.SetMiddlewareJSON(customerController.GetCustomers))
 	httpRouter.POST("/customer", middlewares.SetMiddlewareJSON(customerController.AddCustomer))
 	httpRouter.PUT("/customer/{id}", middlewares.SetMiddlewareJSON(customerController.UpdateCustomer))
 	httpRouter.GET("/customer/{id}", middlewares.SetMiddlewareJSON(customerController.GetCustomer))
